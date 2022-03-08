@@ -15,7 +15,7 @@ import java.util.Date;
  *   이런 경우도 @RextController는  JSON으로 변환하여 처리한ㄴ다 
  * */
 
-
+//git
 ///6개의 멤버변수  
 //Getter/setter 메소드는  alt +sihft + s 
 public class BoardVO {
