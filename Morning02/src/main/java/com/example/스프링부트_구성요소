@@ -1,0 +1,131 @@
+#스프링 부트를 구성하는 핵심 요소는
+1.스타터(starter)
+ - 스프링이 제공하는 특정 모듈을 사용할 수 있도록 관련된 라이브러리 의존성을 해결한다. 
+2.자동설정(AutoConfiguration) 
+ - 스타터를 통해 추가한 모듈을 사용할 수 있도록 관련된 빈 설정을 자동으로 처리 해준다.
+3. 액추에이터 (Actuator)
+ - 스프링 부트로 개발된 시스템을 모니터링 할 수 있는 다양한 기능을 제공한다. 
+ 
+ =================================
+ 
+ 
+ 1. 스타터 -프로젝트에 필요한 라이브러리들으 효과적으로 관리할 수 있다.
+ 
+ ##스타터 
+ 1-1.1 
+ 스프링과 jpa를 연동해서 데이터베이스 작업을 처리한다고 가정 
+ 스프링과 jpa를 연동하려면 가장 먼저 jpa구현체에 해당하는 hibernate-entitymanager.jar 파일 
+ 다운로드하여 클래스 패스에 추가 해야함 - dependecy 추가 -mvnrepository - Hibernate EntityManager Relocation
+ 
+ orm?
+ jpa? 
+ hibernate ? 
+ 메타데이터?
+ 
+ 
+##스타터로 의존성 관리하기 (스타터로 쉽게 의존성관리 )
+프로젝트에 하이버네이트 관련 의존성만 추가 했다고 바로 스피링과 jpa 연동 처리 할 수 없다 
+하이버네이트 말고도  spring-orm.jar, spring-data-jpa.jar 같으 ㄴ라이브러리들 추가로 필요 
+근데 어떤 라이브러리가 더 필요하고 어떤 버전 사용 해야함?? 이런 문제 해결 스프링 부트의 스타터!!
+
+스타터는 필요한 라이브러리들을 관련된 것끼리 묶어서 패키지터럼 제공 
+사용하고싶은 모듈이 있으면 그 모듈에 해당하는 스타터만 의존성으로 추가하면 됨 ->라이브러리 의존성 문제 자동 해결 
+spring -boot-start-모듈명 형태 
+jpa 스타터 추가 하면됨 
+
+
+##스타터 설정 이해 
+스타터는 어떻게 이런 최소한의 설정만으로 수많은 라이브러리들을 자동으로 관리 할 수 있을까?
+- 스타터에 있는 POM 파일의 상속 구조에 있다 
+스피링 부트의 스타터를 이용하면 특정 모듈과 관련된 의존성을 패키지처럼 관리하기 때문에 프로젝트에 새로운 모듈을 쉽게 등록하거나 제거할 수 있다.
+- POM파일 상속 구조 이해하기 
+메이븐은 자바 클래스의 상속과 같이 상속을 통해 복잡한 설정을 재사용할 수 있다
+<parent> 
+spring-boot-dependencies로부터 <property>와 <dependency>설정들을 상속받고,
+spring-boot-starter-parent로부터는 <plugin>관련 설정들을 상속받는다
+이렇게 의존성을 관리하면 개발자는 필요한 라이브러리들을 빠르고 쉽게 추가하여 프로젝트를 생성 할 수 있으며,
+복잡한 의존성을 숨길 수 있어서 좀더 쉽게 프로젝트 관리할 수 있다.
+
+##의존성 재정의하기
+-스타터 재정의하기 
+부모로부터 상속된 의존성은 자식 프로젝트에서 재정의할 수 있다. 
+현재 프로젝트에서 사용중인 pom.xml 파일에 동록된 스타터 설정들을 보면 스타터들에 대한 version정보 없다 
+이는 부모로부터 버전 관련 <properties> 설정이 상속되었기 때문이다.
+재정의된 설정이 우선순위가 높다 
+<version>을 직접 변경하면 -> 스타터가 관리하는 수많은 의존성 역시 호환 가능한 버전으로 자동 변경된다.
+
+##프로퍼티 재정의하기 
+만약 spring-boot-starter-web이 제공하는 라이브러리들 중에 스프링 프레임워크 버전만 변경하고 싶은 경우 ?
+부모로부터 상속받은 프로퍼티를 재정의 하면 된다. 
+pom.xml-><properties>에 -><spring.version>5.1.4.RELEASE</spring.version>추가
+
+=============================================================================
+2. 스프링 부트의 자동설정 (애플리케이션 운용에 필요한 빈들을 초기화하는 기능 제공)
+
+스타터이용 라이브러리 관리 하지만 라이브러리만 추가한다고 모듈 바로 사용 할 수 있는것 아님 
+스프링 설정 파일에 빈 등로도 해야하고 의존성 주입도 적절히 처리해야한다 ->스프링부트는 이런 복잡한 설정도 자동 처리 해줌
+
+##자동설정이란? 
+스프링부트로 만든 프로젝트에는 애플리케이션 실행을 위한 메인 클래스가 기본적으로 제공된다.
+이 메인 클래스를 실행하면 내장 톰캣이 구동되고 스프링 기반의 웹 애플리케이션이 잘 동작하는 것도 확인할 수 있다.
+자동설정 기능이 동작하여 수많은 빈들이 등록되고 동작 -> 메인 클래스 위에 선언된 @SpringBootApplication
+사실  @SpringBootApplication이 포함하고 있는 @EnableAutoConfiguration 덕분 
+@SpringBootConfiguration == @Configuration 기존에 환경설정 빈 클래스를 표현하기 위해 사용
+
+-- 스프링 컨테이너 초기화와 관련된 어노테이션
+@EnableAutoConfiguration
+->자동설정과 관련된 어노테이션 
+	스프링부트는 스프링 컨테이너를 구동할 때 두 단계로 나누어 객체들을 초기화(생성)한다. 
+	스프링 부트가 이렇게 두 단계로 나누어 빈들을 초기화하는 이유는 애플리케이션을 운영하기 위해서는 두 종류의 빈들이 필요하기 때문이다. 
+	예) 웹 애플리케이션에 파일 업로드 기능 추가 
+		먼저 컨트롤러를 MultipartFile객체를 이용해서 업로드 가능한 컨트롤러로 구현해야 한다 
+		실제로 파일 업로드 기능이 동작하기 위해서는 사용자가 업로드한 파일 정보가 MultipartFile객체에 설정되어야 하며
+		이를 위해서 멀티파트 리졸버 객체가 반드시 필요 
+		즉  업로드가 정상적으로 동작하기 위해서는 내가 만든 컨트롤러 뿐 아니라 
+		이를 위해 멀티파트 리졸버 객체를 메모리에 올리는 두개의 객체 생성 과정이 필요한것이다.
+	결국 @ComponentScan은 내가 만든 컨트롤러 객체를 메모리에 올리는 작업을 처리하고 
+		@EnableAutoConfiguration은 CommonsMultipartResolver 같은 객체들을 메모리에 올리는 작업을 처리한다
+	@EnableAutoConfiguration은 spring-boot-autoconfigure-2.6.4.jar 파일에 포함되어 있다.
+	펼쳐보면 META_INF 폴더에 spring,factories 파일이 있는데 이 파일은 스프링 부트의 메타 데이터가 저장되엉 ㅣㅆ는 파일 
+	스프링 부트는 이파일의 설정을 참조하여 여러가지 빈을 생성한다.->엄청나게 많은 환경 설정 클래스들이 등록되어 있어요
+	
+	##그 중 WebMvcAutoConfiguration 확인해보자 
+	이 클래스 위에 설정된 어노테이션 확인해보자 
+@Configuration(proxyBeanMethods = false)
+//이 클래스가 스프링 빈 설정 클래스임을 의미  따라서 @ComponentScan이 처리될 때 자신뿐만 아니라 이 클래스에 @Bean으로 설정된 모든 빈들도 초기화된다
+@ConditionalOnWebApplication(type = Type.SERVLET)
+//웹 애플리케이션 타입이 어떻게 설정되어 있느냐를 확인하는 어노테이션 이 설정을 적용하여 웹과 관련된 여러 빈들을 초기화해라 
+@ConditionalOnClass({ Servlet.class, DispatcherServlet.class, WebMvcConfigurer.class })
+// 특정 클래스가 클래스 패스에 존재할 때, 현재 설정 클래스를 적용하라는 의미다. 
+{}안에 있는 클래스가 존재하면 이 설정 클래스가 동작하도록 설정한 것 
+@ConditionalOnMissingBean(WebMvcConfigurationSupport.class)
+//특정 클래스 객체가 메모리에 없을 때 현재 설정 클래스를 적용하라는 의미 
+//WebMvcConfigurationSupport 객체가 메모리에 없을 때만 현재 설정 클래스가 동작한다.
+@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE + 10)
+//자동 설정 클래스들의 우선 순위를 지정할 때 사용한다.
+//현재 자동 설정 클래스의 우선순위를  가장 높은 우선 순위보다 10단계 더 높게 설정한 것 
+@AutoConfigureAfter({ DispatcherServletAutoConfiguration.class, TaskExecutionAutoConfiguration.class,
+		ValidationAutoConfiguration.class }
+//현재의 자동 설정 클래스가 다른 자동 설정 클래스 다음에 적용되도록 지정할 때 사용 
+// 위 설정대로면 {}안에  모두 처리된 이후에 적용 
+public class WebMvcAutoConfiguration {
+	
+	** 컨테이너가 구동될 때 어떤 자동 설정들이 적용되었는지 보고 싶으면 
+	   스프링부트를 실행할 때, 로그 레벨을 DEBUG로 설정 
+	   Run As ->Run Configurations ->Arguments-> --debug 
+	   스프링 부트가 DEBUG 레벨로 로그를 출력하기 때문에 어떤 설정 빈들이 자동으로 메모리에 올라가서 어떤 빈들이 메모리에 초기화 됐는지 로그를 통해 직접 확인할 수 있다. 
+	
+@ComponentScan(excludeFilters = { @Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
+		@Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) })
+->@Contiguration, @Repository, @Service, @Controller, @REstController가 붙은 
+	객체를 메모리에 올리는 역할 
+	TypeExcludeFilter, AutoConfigurationExcludeFilter 를 제외하고 나머지 객체들을 스캔해서 초기화하도록 설정한 것 
+	몇개의 필터 제외하고  morning02Application 클래스가 있는 패키지를 기준으로 클래스들을 컴포넌트 스캔하여 빈으로 등록
+	
+
+## 사용자 정의 스타터 
+
+-프로젝트 생성 및 xml 설정하기 
+
+우리 회사에서만 사용하는 스타터와 자동완성을 사용하고 싶은 경우?
+사용자 정의 스타터를 만들려면 먼저 이름 정해  XXX-spring-boot-starter 같은 패턴 
